@@ -1,11 +1,12 @@
 #!/bin/bash
 
-# <UDF name="sshkeyurl" label="The publicly accessible URL of your SSH Key.">
+# <UDF name="sshkeyurl" label="The publicly accessible URL of your SSH Key">
 # SSHKEYURL=
-# <UDF name="hostname" label="Set your system's hostname.">
+# <UDF name="hostname" label="Set your system's hostname">
 # HOSTNAME=
-# <UDF name="fqdn" label="Set your system's fully qualified domain name.">
+# <UDF name="fqdn" label="Set your system's fully qualified domain name">
 # FQDN=
+# <UDF name="db_password" Label="Database root password" />
 
 IPADDR=`ip -f inet -r addr | egrep -o "(([0-9]{3}+).*)/24" | sed 's/\/24//'`
 
@@ -29,6 +30,9 @@ apt-get update
 apt-get --yes upgrade
 apt-get --yes dist-upgrade
 #dpkg-reconfigure locales
+
+echo "mariadb-server-5.5 mysql-server/root_password password ${DB_PASSWORD}" | debconf-set-selections
+echo "mariadb-server-5.5 mysql-server/root_password_again password ${DB_PASSWORD}" | debconf-set-selections
 
 apt-get -f --yes install apachetop build-essential apache2 apache2-threaded-dev apache2.2-common curl htop rsync patch diffutils cron git git-core wget openssh-blacklist-extra denyhosts libmcrypt4 mariadb-server-5.5 mariadb-server-core-5.5 mariadb-client-5.5 mariadb-client-core-5.5 libmariadbclient18 libmysqlclient18 memcached jenkins daemon openjdk-6-jre procmail jmeter jmeter-http
 
