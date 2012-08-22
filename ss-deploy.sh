@@ -8,23 +8,26 @@
 # FQDN=
 # <UDF name="db_password" Label="Database root password" />
 
-IPADDR=`ip -f inet -r addr | egrep -o "(([0-9]{3}+).*)/24" | sed 's/\/24//'`
+PUBLICIP=$(ifconfig | grep -m 1 'inet addr:' | cut -d: -f2 | awk '{ print $1}');
+echo "$PUBLICIP $HOSTNAME $FQDN" >> /etc/hosts
 
 mkdir /root/.ssh/
 touch /root/.ssh/authorized_keys
 wget --no-check-certificate $SSHKEYURL --output-document=/tmp/ss-ssh.pub
 cat /tmp/ss-ssh.pub >> /root/.ssh/authorized_keys
 
-rm /etc/hostname
 echo $HOSTNAME > /etc/hostname
-echo $IPADDR $HOSTNAME $FQDN >> /etc/hosts
+hostname $HOSTNAME
 
 wget -q -O - http://pkg.jenkins-ci.org/debian/jenkins-ci.org.key | apt-key add -
 apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 0xcbcb082a1bb943db
+wget -q http://debian.aegirproject.org/key.asc -O- | apt-key add -
 
-echo "deb http://pkg.jenkins-ci.org/debian binary/" >> /etc/apt/sources.list
-echo "deb http://ftp.osuosl.org/pub/mariadb/repo/5.5/debian squeeze main" >> /etc/apt/sources.list
-echo "deb-src http://ftp.osuosl.org/pub/mariadb/repo/5.5/debian squeeze main" >> /etc/apt/sources.list
+echo "deb http://pkg.jenkins-ci.org/debian binary/" >> /etc/apt/sources.list.d/jenkins.list
+echo "deb http://ftp.osuosl.org/pub/mariadb/repo/5.5/debian squeeze main" >> /etc/apt/sources.list.d/mariadb.list
+echo "deb-src http://ftp.osuosl.org/pub/mariadb/repo/5.5/debian squeeze main" >> /etc/apt/sources.list.d/mariadb.list
+echo "deb http://debian.aegirproject.org/ squeeze main" >> /etc/apt/sources.list.d/aegir.list
+echo "deb-src http://debian.aegirproject.org/ squeeze main" >> /etc/apt/sources.list/aegir.list
 
 apt-get update
 apt-get --yes upgrade
@@ -42,11 +45,11 @@ apt-get -f --yes install apachetop build-essential apache2 apache2-threaded-dev 
 # installing PHP separately resolves a libmysqlclient18 lib conflict with MariaDB
 
 wget -q -O - http://www.dotdeb.org/dotdeb.gpg | apt-key add -
-echo "deb http://packages.dotdeb.org squeeze all" >> /etc/apt/sources.list
-echo "deb-src http://packages.dotdeb.org squeeze all" >> /etc/apt/sources.list
+echo "deb http://packages.dotdeb.org squeeze all" >> /etc/apt/sources.list.d/dotdeb.list
+echo "deb-src http://packages.dotdeb.org squeeze all" >> /etc/apt/sources.list.d/dotdeb.list
 apt-get update
 
-apt-get -f --yes install php5 php5-apc php5-cgi php5-cli php5-common php5-curl php5-dev php5-gd php5-mcrypt php5-memcache php5-memcached php5-mysql php5-xmlrpc php-pear libapache2-mod-php5
+apt-get -f --yes install php5 php5-apc php5-cgi php5-cli php5-common php5-curl php5-dev php5-gd php5-mcrypt php5-memcache php5-memcached php5-mysql php5-xmlrpc php-pear libapache2-mod-php5 aegir
 
 pear channel-discover pear.drush.org
 pear install drush/drush
