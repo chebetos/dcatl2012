@@ -7,6 +7,7 @@
 # <UDF name="fqdn" label="Set your system's fully qualified domain name">
 # FQDN=
 # <UDF name="db_password" Label="Database root password" />
+# <UDF name="hostmaster_email" Label="Contact email address for the Aegir hostmaster" />
 
 PUBLICIP=$(ifconfig | grep -m 1 'inet addr:' | cut -d: -f2 | awk '{ print $1}');
 echo "$PUBLICIP $HOSTNAME $FQDN" >> /etc/hosts
@@ -41,7 +42,7 @@ then
 	echo "mariadb-server-5.5 mysql-server/root_password_again password ${DB_PASSWORD}" | debconf-set-selections
 fi
 
-apt-get -f --yes install apachetop build-essential apache2 apache2-threaded-dev apache2.2-common curl htop rsync patch diffutils cron git git-core wget openssh-blacklist-extra denyhosts libmcrypt4 mariadb-server-5.5 mariadb-server-core-5.5 mariadb-client-5.5 mariadb-client-core-5.5 libmariadbclient18 libmysqlclient18 memcached jenkins daemon openjdk-6-jre procmail jmeter jmeter-http
+apt-get -f --yes install apachetop build-essential apache2 apache2-threaded-dev apache2.2-common curl htop rsync patch diffutils cron git git-core wget openssh-blacklist-extra denyhosts libmcrypt4 mariadb-server-5.5 mariadb-server-core-5.5 mariadb-client-5.5 mariadb-client-core-5.5 libmariadbclient18 libmysqlclient18 memcached jenkins daemon openjdk-6-jre procmail jmeter jmeter-http debconf-utils
 
 # installing PHP separately resolves a libmysqlclient18 lib conflict with MariaDB
 
@@ -53,6 +54,13 @@ apt-get update
 
 apt-get -f --yes install php5 php5-apc php5-cgi php5-cli php5-common php5-curl php5-dev php5-gd php5-mcrypt php5-memcache php5-memcached php5-mysql php5-xmlrpc php-pear libapache2-mod-php5
 apt-get --yes -t squeeze-backports install drush drush-make
+
+echo "aegir-hostmaster aegir/db_password password ${DB_PASSWORD}" | debconf-set-selections
+echo "aegir-hostmaster aegir/db_user string root" | debconf-set-selections
+echo "aegir-hostmaster aegir/email string ${HOSTMASTER_EMAIL}" | debconf-set-selections
+echo "aegir-hostmaster aegir/db_host string localhost" | debconf-set-selections
+echo "aegir-hostmaster aegir/site string ${HOSTNAME}" | debconf-set-selections
+
 apt-get -f --yes install aegir aegir-hostmaster aegir-provision
 
 pear channel-discover pear.drush.org
