@@ -91,6 +91,12 @@ a2enmod expires
 # Google PageSpeed module to filter output in realtime as part of content optimization
 a2enmod pagespeed
 
+HOSTMASTER_DIR=$(ls /var/aegir | grep host);
+TIMEZONE=$(cat /etc/timezone);
+
+# Make Drupal stop whining about mandatory timezone settings
+echo "date_default_timezone_set('${TIMEZONE}');"  >> /var/aegir/$HOSTMASTER_DIR/sites/$FQDN/settings.php
+
 # Handles fancier progress meter in Drupal file uploads, but we will use uploadprogress PECL instead
 echo "apc.rfc1867 = Off" >> /etc/php5/apache2/php.ini
 
