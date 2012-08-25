@@ -42,7 +42,7 @@ then
 	echo "mariadb-server-5.5 mysql-server/root_password_again password ${DB_PASSWORD}" | debconf-set-selections
 fi
 
-apt-get -f --yes install apachetop build-essential apache2 apache2-threaded-dev apache2.2-common curl htop rsync patch diffutils cron git git-core wget openssh-blacklist-extra denyhosts libmcrypt4 mariadb-server-5.5 mariadb-server-core-5.5 mariadb-client-5.5 mariadb-client-core-5.5 libmariadbclient18 libmysqlclient18 memcached jenkins daemon openjdk-6-jre procmail jmeter jmeter-http debconf-utils
+apt-get -f --yes install apachetop build-essential apache2 apache2-threaded-dev apache2.2-common curl htop rsync patch diffutils cron git git-core wget openssh-blacklist-extra denyhosts libmcrypt4 mariadb-server-5.5 mariadb-server-core-5.5 mariadb-client-5.5 mariadb-client-core-5.5 libmariadbclient18 libmysqlclient18 memcached jenkins daemon openjdk-6-jre procmail jmeter jmeter-http debconf-utils ant
 
 
 # Apache complains on start and restart if it doesn't have a complete server name. Debian doesn't attempt to set one by default.
@@ -68,9 +68,16 @@ echo "aegir-hostmaster aegir/site string ${HOSTNAME}" | debconf-set-selections
 apt-get -f --yes install aegir aegir-hostmaster aegir-provision
 
 pear channel-discover pear.drush.org
+pear channel-discover pear.phpunit.de
+pear channel-discover components.ez.no
+pear channel-discover pear.phpmd.org
+pear channel-discover pear.pdepend.org
 #pear install drush/drush
 pear update-channels
 pear upgrade-all
+pear install --alldeps phpmd/PHP_PMD
+pear install phpunit/phpcpd
+pear install phpunit/phpdcd-beta
 pecl install uploadprogress
 
 if [ "`uname -m | grep 64`" ]
@@ -121,3 +128,15 @@ perl -pi -e 's/(short_open_tag =)\s+On$/\1 Off/g' /etc/php5/cli/php.ini
 perl -pi -e 's/(expose_php =)\s+On$/\1 Off/g' /etc/php5/cli/php.ini
 perl -pi -e 's/(mysql\.allow_persistent =)\s+On$/\1 Off/g' /etc/php5/cli/php.ini
 /etc/init.d/apache2 force-reload
+
+java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://localhost:8080 install-plugin checkstyle
+java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://localhost:8080 install-plugin clamav
+java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://localhost:8080 install-plugin dry
+java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://localhost:8080 install-plugin gerrit
+java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://localhost:8080 install-plugin gerrit-trigger
+java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://localhost:8080 install-plugin git
+java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://localhost:8080 install-plugin git-parameter
+java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://localhost:8080 install-plugin performance
+java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://localhost:8080 install-plugin pmd
+java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://localhost:8080 install-plugin view-job-filters
+java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://localhost:8080 install-plugin ws-cleanup
