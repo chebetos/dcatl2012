@@ -140,3 +140,4 @@ java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://localhost:808
 java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://localhost:8080 install-plugin pmd
 java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://localhost:8080 install-plugin view-job-filters
 java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://localhost:8080 install-plugin ws-cleanup
+java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://localhost:8080 safe-restart
