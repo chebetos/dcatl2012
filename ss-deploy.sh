@@ -6,8 +6,9 @@
 # HOSTNAME=
 # <UDF name="fqdn" label="Set your system's fully qualified domain name">
 # FQDN=
-# <UDF name="db_password" Label="Database root password" />
-# <UDF name="hostmaster_email" Label="Contact email address for the Aegir hostmaster" />
+# <UDF name="db_password" Label="Database root password">
+# DB_PASSWORD=
+# <UDF name="hostmaster_email" Label="Contact email address for the Aegir hostmaster">
 
 PUBLICIP=$(ifconfig | grep -m 1 'inet addr:' | cut -d: -f2 | awk '{ print $1}');
 echo "$PUBLICIP $HOSTNAME $FQDN" >> /etc/hosts
@@ -24,6 +25,8 @@ wget -q -O - http://pkg.jenkins-ci.org/debian/jenkins-ci.org.key | apt-key add -
 apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 0xcbcb082a1bb943db
 wget -q http://debian.aegirproject.org/key.asc -O- | apt-key add -
 
+export DEBIAN_FRONTEND=noninteractive
+
 echo "deb http://pkg.jenkins-ci.org/debian binary/" >> /etc/apt/sources.list.d/jenkins.list
 echo "deb http://ftp.osuosl.org/pub/mariadb/repo/5.5/debian squeeze main" >> /etc/apt/sources.list.d/mariadb.list
 echo "deb-src http://ftp.osuosl.org/pub/mariadb/repo/5.5/debian squeeze main" >> /etc/apt/sources.list.d/mariadb.list
@@ -34,7 +37,7 @@ echo "deb http://backports.debian.org/debian-backports squeeze-backports main" >
 apt-get update
 apt-get --yes upgrade
 apt-get --yes dist-upgrade
-#dpkg-reconfigure locales
+dpkg-reconfigure locales
 
 if [ -n $DB_PASSWORD ]
 then
@@ -52,8 +55,14 @@ echo "ServerName $FQDN" > /etc/apache2/httpd.conf
 
 # Provides more recent versions of PHP
 wget -q -O - http://www.dotdeb.org/dotdeb.gpg | apt-key add -
-echo "deb http://packages.dotdeb.org squeeze all" >> /etc/apt/sources.list.d/dotdeb.list
-echo "deb-src http://packages.dotdeb.org squeeze all" >> /etc/apt/sources.list.d/dotdeb.list
+# Global
+#echo "deb http://packages.dotdeb.org squeeze all" >> /etc/apt/sources.list.d/dotdeb.list
+#echo "deb-src http://packages.dotdeb.org squeeze all" >> /etc/apt/sources.list.d/dotdeb.list
+# USA mirror
+# http://dotdeb.mirror.borgnet.us/ lags on updates
+echo "deb http://mirror.us.leaseweb.net/dotdeb/ stable all" >> /etc/apt/sources.list.d/dotdeb.list
+echo "deb-src http://mirror.us.leaseweb.net/dotdeb/ stable all" >> /etc/apt/sources.list.d/dotdeb.list
+
 apt-get update
 
 apt-get -f --yes install php5 php5-apc php5-cgi php5-cli php5-common php5-curl php5-dev php5-gd php5-mcrypt php5-memcache php5-memcached php5-mysql php5-xmlrpc php-pear libapache2-mod-php5
@@ -65,19 +74,25 @@ echo "aegir-hostmaster aegir/email string ${HOSTMASTER_EMAIL}" | debconf-set-sel
 echo "aegir-hostmaster aegir/db_host string localhost" | debconf-set-selections
 echo "aegir-hostmaster aegir/site string ${HOSTNAME}" | debconf-set-selections
 
-apt-get -f --yes install aegir aegir-hostmaster aegir-provision
+# noninteractive tip from http://drupal.org/node/1300272 and http://drupalcode.org/project/vagrant_scripts_aegir.git/blob/refs/heads/6.x-1.x:/aegir_common.py#l62
+# otherwise it aegir-hostmaster install will prompt for root db password twice, in spite of debconf-set-selections
+DPKG_DEBUG=developer apt-get -f --yes install aegir aegir-hostmaster aegir-provision
 
 pear channel-discover pear.drush.org
 pear channel-discover pear.phpunit.de
 pear channel-discover components.ez.no
 pear channel-discover pear.phpmd.org
 pear channel-discover pear.pdepend.org
-#pear install drush/drush
+
 pear update-channels
 pear upgrade-all
-pear install --alldeps phpmd/PHP_PMD
-pear install phpunit/phpcpd
-pear install phpunit/phpdcd-beta
+pear install --onlyreqdeps phpmd/PHP_PMD
+pear install --onlyreqdeps phpunit/phpcpd
+pear install --onlyreqdeps phpunit/phpdcd-beta
+
+# Using the backport drush deb to resolve dependency with aegir debs
+#pear install drush/drush
+
 pecl install uploadprogress
 
 if [ "`uname -m | grep 64`" ]
