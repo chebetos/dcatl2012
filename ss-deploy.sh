@@ -47,6 +47,8 @@ fi
 
 apt-get -f --yes install apachetop build-essential apache2 apache2-threaded-dev apache2.2-common curl htop rsync patch diffutils cron git git-core wget openssh-blacklist-extra denyhosts libmcrypt4 mariadb-server-5.5 mariadb-server-core-5.5 mariadb-client-5.5 mariadb-client-core-5.5 libmariadbclient18 libmysqlclient18 memcached jenkins daemon openjdk-6-jre procmail jmeter jmeter-http debconf-utils ant clamav
 
+echo "[mysqld]" >> /etc/mysql/conf.d/innodb.cnf
+echo "innodb_file_format = Barracuda" >> /etc/mysql/conf.d/innodb.cnf
 
 # Apache complains on start and restart if it doesn't have a complete server name. Debian doesn't attempt to set one by default.
 echo "ServerName $FQDN" > /etc/apache2/httpd.conf
