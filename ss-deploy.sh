@@ -15,7 +15,7 @@ then
   read -t 1 -n 1000 DISCARD
   DISCARD=""
 
-  read -n 1 -p "URL of your SSH public key: " SSHKEYURL
+  read -p "URL of your SSH public key: " SSHKEYURL
 fi
 
 if [ -z "$HOSTNAME" ]
@@ -23,7 +23,7 @@ then
   read -t 1 -n 1000 DISCARD
   DISCARD=""
 
-  read -n 1 -p "Set the hostname: " HOSTNAME
+  read -p "Set the hostname: " HOSTNAME
 fi
 
 if [ -z "$FQDN" ]
@@ -31,7 +31,7 @@ then
   read -t 1 -n 1000 DISCARD
   DISCARD=""
 
-  read -n 1 -p "Set the fully qualified domain name: " FQDN
+  read -p "Set the fully qualified domain name: " FQDN
 fi
 
 if [ -z "$DB_PASSWORD" ]
@@ -39,7 +39,7 @@ then
   read -t 1 -n 1000 DISCARD
   DISCARD=""
 
-  read -n 1 -p "Database root password: " DB_PASSWORD
+  read -p "Database root password: " DB_PASSWORD
 fi
 
 if [ -z "$HOSTMASTER_EMAIL" ]
@@ -47,7 +47,7 @@ then
   read -t 1 -n 1000 DISCARD
   DISCARD=""
 
-  read -n 1 -p "Contact email address for the Aegir hostmaster: " HOSTMASTER_EMAIL
+  read -p "Contact email address for the Aegir hostmaster: " HOSTMASTER_EMAIL
 fi
 
 PUBLICIP=$(ifconfig | grep -m 1 'inet addr:' | cut -d: -f2 | awk '{ print $1}');
