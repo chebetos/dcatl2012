@@ -115,6 +115,12 @@ apt-get --yes -t squeeze-backports install drush drush-make
 
 # limited use of --force-yes, but this is an unauthenticated install
 apt-get --force-yes --yes install sonar
+wget -O /opt/sonar/extensions/plugins/sonar-php-plugin-1.1.jar http://repository.codehaus.org/org/codehaus/sonar-plugins/php/sonar-php-plugin/1.1/sonar-php-plugin-1.1.jar
+wget -O /opt/sonar/extensions/plugins/sonar-technicaldebt-plugin-1.2.1.jar http://repository.codehaus.org/org/codehaus/sonar-plugins/sonar-technicaldebt-plugin/1.2.1/sonar-technicaldebt-plugin-1.2.1.jar
+wget -O /opt/sonar/extensions/plugins/sonar-javascript-plugin-1.0.jar http://repository.codehaus.org/org/codehaus/sonar-plugins/javascript/sonar-javascript-plugin/1.0/sonar-javascript-plugin-1.0.jar
+wget -O /opt/sonar/extensions/plugins/sonar-useless-code-tracker-plugin-0.5.jar http://repository.codehaus.org/org/codehaus/sonar-plugins/sonar-useless-code-tracker-plugin/0.5/sonar-useless-code-tracker-plugin-0.5.jar
+wget -O /opt/sonar/extensions/plugins/sonar-branding-plugin-0.3.jar http://repository.codehaus.org/org/codehaus/sonar-plugins/sonar-branding-plugin/0.3/sonar-branding-plugin-0.3.jar
+wget -O /opt/sonar/extensions/plugins/sonar-build-breaker-plugin-1.0.jar http://repository.codehaus.org/org/codehaus/sonar-plugins/sonar-build-breaker-plugin/1.0/sonar-build-breaker-plugin-1.0.jar
 # the sonar deb install scripts don't start the service
 /etc/init.d/sonar start
 
@@ -196,6 +202,10 @@ perl -pi -e 's/(expose_php =)\s+On$/\1 Off/g' /etc/php5/cli/php.ini
 perl -pi -e 's/(mysql\.allow_persistent =)\s+On$/\1 Off/g' /etc/php5/cli/php.ini
 /etc/init.d/apache2 force-reload
 
+# When Jenkins starts, it probably hasn't checked for a list of updates
+# which would also hint to Jenkins what plugins are available to install
+# using jenkins-cli.jar. Since we have no list, we do the "By hand" method:
+# https://wiki.jenkins-ci.org/display/JENKINS/Plugins#Plugins-Byhand
 wget --no-check-certificate -O /var/lib/jenkins/plugins/analysis-collector.hpi https://updates.jenkins-ci.org/latest/analysis-collector.hpi
 wget --no-check-certificate -O /var/lib/jenkins/plugins/ansicolor.hpi https://updates.jenkins-ci.org/latest/ansicolor.hpi
 wget --no-check-certificate -O /var/lib/jenkins/plugins/checkstyle.hpi https://updates.jenkins-ci.org/latest/checkstyle.hpi
@@ -214,5 +224,6 @@ wget --no-check-certificate -O /var/lib/jenkins/plugins/view-job-filters.hpi htt
 wget --no-check-certificate -O /var/lib/jenkins/plugins/ws-cleanup.hpi https://updates.jenkins-ci.org/latest/ws-cleanup.hpi
 chown jenkins:nogroup /var/lib/jenkins/plugins/*.hpi
 java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://localhost:8080 safe-restart
+# http://pastebin.com/6GDfJrzp
 
 wget -O /opt/gerrit-2.4.2.war http://gerrit.googlecode.com/files/gerrit-2.4.2.war
